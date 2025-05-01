@@ -1,0 +1,594 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+
+namespace SubmarinoControlador
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var controlador = new ControladorSubmarino();
+            controlador.IniciarSistema();
+        }
+    }
+
+    public class ControladorSubmarino
+    {
+        // Estados do submarino
+        private bool sistemaAtivo = false;
+        private bool emergencia = false;
+        private bool submerso = false;
+        
+        // Sensores
+        private double profundidade = 0;
+        private double temperaturaExterna = 20;
+        private double pressaoInterna = 1;
+        private double nivelOxigenio = 100;
+        private double nivelBateria = 100;
+        private double velocidade = 0;
+        
+        // Sistemas
+        private bool propulsaoAtiva = false;
+        private bool sonarAtivo = false;
+        private bool luzesInternas = true;
+        private bool luzesExternas = false;
+        private bool sistemaO2Ativo = true;
+        
+        // Alvos detectados
+        private List<string> alvosDetectados = new List<string>();
+        
+        // Configurações
+        private readonly double profundidadeMaxima = 1000;
+        private readonly double velocidadeMaxima = 50;
+        
+        public void IniciarSistema()
+        {
+            sistemaAtivo = true;
+            Console.Clear();
+            Console.WriteLine("=== INICIALIZANDO SISTEMA DE CONTROLE DE BORDO ===");
+            Console.WriteLine("Verificando subsistemas...");
+            
+            // Simular inicialização
+            for (int i = 0; i < 10; i++)
+            {
+                Console.Write(".");
+                Thread.Sleep(200);
+            }
+            
+            Console.WriteLine("\n\nSistema pronto. Bem-vindo, Comandante.");
+            MenuPrincipal();
+        }
+        
+        private void MenuPrincipal()
+        {
+            while (sistemaAtivo)
+            {
+                Console.Clear();
+                ExibirStatus();
+                
+                Console.WriteLine("\n=== MENU PRINCIPAL ===");
+                Console.WriteLine("1. Controle de Propulsão");
+                Console.WriteLine("2. Controle de Profundidade");
+                Console.WriteLine("3. Sistema de Sonar");
+                Console.WriteLine("4. Controle de Iluminação");
+                Console.WriteLine("5. Sistema de Suporte Vital");
+                Console.WriteLine("6. Diagnóstico de Sistemas");
+                Console.WriteLine("7. Modo de Emergência");
+                Console.WriteLine("8. Desligar Sistema");
+                
+                Console.Write("\nSelecione uma opção: ");
+                var opcao = Console.ReadLine();
+                
+                switch (opcao)
+                {
+                    case "1":
+                        MenuPropulsao();
+                        break;
+                    case "2":
+                        MenuProfundidade();
+                        break;
+                    case "3":
+                        MenuSonar();
+                        break;
+                    case "4":
+                        MenuIluminacao();
+                        break;
+                    case "5":
+                        MenuSuporteVital();
+                        break;
+                    case "6":
+                        DiagnosticoSistemas();
+                        break;
+                    case "7":
+                        AtivarModoEmergencia();
+                        break;
+                    case "8":
+                        DesligarSistema();
+                        break;
+                    default:
+                        Console.WriteLine("Opção inválida!");
+                        Thread.Sleep(1000);
+                        break;
+                }
+                
+                // Atualizar estado do submarino
+                AtualizarEstado();
+            }
+        }
+        
+        private void ExibirStatus()
+        {
+            Console.WriteLine($"=== STATUS DO SUBMARINO ===");
+            Console.WriteLine($"Estado: {(emergencia ? "EMERGÊNCIA" : submerso ? "SUBERSO" : "SUPERFÍCIE")}");
+            Console.WriteLine($"Profundidade: {profundidade}m");
+            Console.WriteLine($"Velocidade: {velocidade} nós");
+            Console.WriteLine($"Temperatura Externa: {temperaturaExterna}°C");
+            Console.WriteLine($"Pressão Interna: {pressaoInterna} atm");
+            Console.WriteLine($"Nível de Oxigênio: {nivelOxigenio}%");
+            Console.WriteLine($"Nível de Bateria: {nivelBateria}%");
+            
+            if (alvosDetectados.Count > 0)
+            {
+                Console.WriteLine("\n=== ALVOS DETECTADOS ===");
+                foreach (var alvo in alvosDetectados)
+                {
+                    Console.WriteLine($"- {alvo}");
+                }
+            }
+        }
+        
+        private void MenuPropulsao()
+        {
+            bool sair = false;
+            
+            while (!sair && sistemaAtivo)
+            {
+                Console.Clear();
+                ExibirStatus();
+                
+                Console.WriteLine("\n=== CONTROLE DE PROPULSÃO ===");
+                Console.WriteLine($"Propulsão: {(propulsaoAtiva ? "ATIVA" : "INATIVA")}");
+                Console.WriteLine($"Velocidade Atual: {velocidade} nós (Máx: {velocidadeMaxima} nós)");
+                Console.WriteLine("\n1. Ligar/Desligar Propulsão");
+                Console.WriteLine("2. Aumentar Velocidade");
+                Console.WriteLine("3. Diminuir Velocidade");
+                Console.WriteLine("4. Voltar ao Menu Principal");
+                
+                Console.Write("\nSelecione uma opção: ");
+                var opcao = Console.ReadLine();
+                
+                switch (opcao)
+                {
+                    case "1":
+                        propulsaoAtiva = !propulsaoAtiva;
+                        Console.WriteLine($"Propulsão {(propulsaoAtiva ? "ativada" : "desativada")}.");
+                        Thread.Sleep(1000);
+                        break;
+                    case "2":
+                        if (propulsaoAtiva)
+                        {
+                            if (velocidade < velocidadeMaxima)
+                            {
+                                velocidade += 5;
+                                Console.WriteLine("Velocidade aumentada.");
+                            }
+                            else
+                            {
+                                Console.WriteLine("Velocidade máxima atingida!");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Propulsão desativada!");
+                        }
+                        Thread.Sleep(1000);
+                        break;
+                    case "3":
+                        if (propulsaoAtiva)
+                        {
+                            if (velocidade > 0)
+                            {
+                                velocidade -= 5;
+                                Console.WriteLine("Velocidade diminuída.");
+                            }
+                            else
+                            {
+                                Console.WriteLine("Velocidade mínima atingida!");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Propulsão desativada!");
+                        }
+                        Thread.Sleep(1000);
+                        break;
+                    case "4":
+                        sair = true;
+                        break;
+                    default:
+                        Console.WriteLine("Opção inválida!");
+                        Thread.Sleep(1000);
+                        break;
+                }
+            }
+        }
+        
+        private void MenuProfundidade()
+        {
+            bool sair = false;
+            
+            while (!sair && sistemaAtivo)
+            {
+                Console.Clear();
+                ExibirStatus();
+                
+                Console.WriteLine("\n=== CONTROLE DE PROFUNDIDADE ===");
+                Console.WriteLine($"Profundidade Atual: {profundidade}m (Máx: {profundidadeMaxima}m)");
+                Console.WriteLine("\n1. Submergir");
+                Console.WriteLine("2. Emergir");
+                Console.WriteLine("3. Manter Profundidade");
+                Console.WriteLine("4. Voltar ao Menu Principal");
+                
+                Console.Write("\nSelecione uma opção: ");
+                var opcao = Console.ReadLine();
+                
+                switch (opcao)
+                {
+                    case "1":
+                        if (profundidade < profundidadeMaxima)
+                        {
+                            Console.WriteLine("Submergindo...");
+                            for (int i = 0; i < 10; i++)
+                            {
+                                profundidade += 2;
+                                pressaoInterna = 1 + (profundidade / 100 * 0.9);
+                                Thread.Sleep(200);
+                            }
+                            submerso = true;
+                            Console.WriteLine("Submersão concluída.");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Profundidade máxima atingida!");
+                        }
+                        Thread.Sleep(1000);
+                        break;
+                    case "2":
+                        if (profundidade > 0)
+                        {
+                            Console.WriteLine("Emergindo...");
+                            for (int i = 0; i < 10; i++)
+                            {
+                                profundidade -= 2;
+                                pressaoInterna = 1 + (profundidade / 100 * 0.9);
+                                if (profundidade < 0) profundidade = 0;
+                                Thread.Sleep(200);
+                            }
+                            if (profundidade == 0) submerso = false;
+                            Console.WriteLine("Emergência concluída.");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Já estamos na superfície!");
+                        }
+                        Thread.Sleep(1000);
+                        break;
+                    case "3":
+                        Console.WriteLine("Mantendo profundidade atual.");
+                        Thread.Sleep(1000);
+                        break;
+                    case "4":
+                        sair = true;
+                        break;
+                    default:
+                        Console.WriteLine("Opção inválida!");
+                        Thread.Sleep(1000);
+                        break;
+                }
+            }
+        }
+        
+        private void MenuSonar()
+        {
+            bool sair = false;
+            
+            while (!sair && sistemaAtivo)
+            {
+                Console.Clear();
+                ExibirStatus();
+                
+                Console.WriteLine("\n=== SISTEMA DE SONAR ===");
+                Console.WriteLine($"Sonar: {(sonarAtivo ? "ATIVO" : "INATIVO")}");
+                Console.WriteLine($"Alvos detectados: {alvosDetectados.Count}");
+                Console.WriteLine("\n1. Ligar/Desligar Sonar");
+                Console.WriteLine("2. Varredura Ativa");
+                Console.WriteLine("3. Limpar Lista de Alvos");
+                Console.WriteLine("4. Voltar ao Menu Principal");
+                
+                Console.Write("\nSelecione uma opção: ");
+                var opcao = Console.ReadLine();
+                
+                switch (opcao)
+                {
+                    case "1":
+                        sonarAtivo = !sonarAtivo;
+                        Console.WriteLine($"Sonar {(sonarAtivo ? "ativado" : "desativado")}.");
+                        Thread.Sleep(1000);
+                        break;
+                    case "2":
+                        if (sonarAtivo)
+                        {
+                            Console.WriteLine("Realizando varredura...");
+                            Thread.Sleep(2000);
+                            
+                            // Simular detecção de alvos
+                            Random rnd = new Random();
+                            int chance = rnd.Next(1, 101);
+                            
+                            if (chance > 70)
+                            {
+                                string[] tiposAlvos = {"Navio", "Submarino", "Cardume", "Estrutura submarina", "Falso alvo"};
+                                string alvo = tiposAlvos[rnd.Next(tiposAlvos.Length)];
+                                string distancia = $"{rnd.Next(500, 5000)}m";
+                                string direcao = $"{rnd.Next(0, 360)}°";
+                                
+                                string alvoDetectado = $"{alvo} a {distancia}, direção {direcao}";
+                                alvosDetectados.Add(alvoDetectado);
+                                Console.WriteLine($"Alvo detectado: {alvoDetectado}");
+                            }
+                            else
+                            {
+                                Console.WriteLine("Nenhum alvo detectado.");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Sonar desativado!");
+                        }
+                        Thread.Sleep(2000);
+                        break;
+                    case "3":
+                        alvosDetectados.Clear();
+                        Console.WriteLine("Lista de alvos limpa.");
+                        Thread.Sleep(1000);
+                        break;
+                    case "4":
+                        sair = true;
+                        break;
+                    default:
+                        Console.WriteLine("Opção inválida!");
+                        Thread.Sleep(1000);
+                        break;
+                }
+            }
+        }
+        
+        private void MenuIluminacao()
+        {
+            bool sair = false;
+            
+            while (!sair && sistemaAtivo)
+            {
+                Console.Clear();
+                ExibirStatus();
+                
+                Console.WriteLine("\n=== CONTROLE DE ILUMINAÇÃO ===");
+                Console.WriteLine($"Luzes Internas: {(luzesInternas ? "LIGADAS" : "DESLIGADAS")}");
+                Console.WriteLine($"Luzes Externas: {(luzesExternas ? "LIGADAS" : "DESLIGADAS")}");
+                Console.WriteLine("\n1. Alternar Luzes Internas");
+                Console.WriteLine("2. Alternar Luzes Externas");
+                Console.WriteLine("3. Voltar ao Menu Principal");
+                
+                Console.Write("\nSelecione uma opção: ");
+                var opcao = Console.ReadLine();
+                
+                switch (opcao)
+                {
+                    case "1":
+                        luzesInternas = !luzesInternas;
+                        Console.WriteLine($"Luzes internas {(luzesInternas ? "ligadas" : "desligadas")}.");
+                        Thread.Sleep(1000);
+                        break;
+                    case "2":
+                        luzesExternas = !luzesExternas;
+                        Console.WriteLine($"Luzes externas {(luzesExternas ? "ligadas" : "desligadas")}.");
+                        Thread.Sleep(1000);
+                        break;
+                    case "3":
+                        sair = true;
+                        break;
+                    default:
+                        Console.WriteLine("Opção inválida!");
+                        Thread.Sleep(1000);
+                        break;
+                }
+            }
+        }
+        
+        private void MenuSuporteVital()
+        {
+            bool sair = false;
+            
+            while (!sair && sistemaAtivo)
+            {
+                Console.Clear();
+                ExibirStatus();
+                
+                Console.WriteLine("\n=== SISTEMA DE SUPORTE VITAL ===");
+                Console.WriteLine($"Sistema de O2: {(sistemaO2Ativo ? "ATIVO" : "INATIVO")}");
+                Console.WriteLine($"Nível de Oxigênio: {nivelOxigenio}%");
+                Console.WriteLine("\n1. Alternar Sistema de O2");
+                Console.WriteLine("2. Recarregar O2 (simulação)");
+                Console.WriteLine("3. Voltar ao Menu Principal");
+                
+                Console.Write("\nSelecione uma opção: ");
+                var opcao = Console.ReadLine();
+                
+                switch (opcao)
+                {
+                    case "1":
+                        sistemaO2Ativo = !sistemaO2Ativo;
+                        Console.WriteLine($"Sistema de O2 {(sistemaO2Ativo ? "ativado" : "desativado")}.");
+                        Thread.Sleep(1000);
+                        break;
+                    case "2":
+                        nivelOxigenio = 100;
+                        Console.WriteLine("Tanques de O2 recarregados.");
+                        Thread.Sleep(1000);
+                        break;
+                    case "3":
+                        sair = true;
+                        break;
+                    default:
+                        Console.WriteLine("Opção inválida!");
+                        Thread.Sleep(1000);
+                        break;
+                }
+            }
+        }
+        
+        private void DiagnosticoSistemas()
+        {
+            Console.Clear();
+            Console.WriteLine("=== DIAGNÓSTICO DE SISTEMAS ===");
+            
+            Console.WriteLine("\nVerificando sistemas...");
+            Thread.Sleep(1500);
+            
+            Console.WriteLine("\n=== RESULTADOS ===");
+            Console.WriteLine($"Hull Integrity: {(profundidade < profundidadeMaxima * 0.8 ? "OK" : "CRÍTICO")}");
+            Console.WriteLine($"Pressão Interna: {(pressaoInterna < 10 ? "NORMAL" : "ALERTA")}");
+            Console.WriteLine($"Sistema de Propulsão: {(propulsaoAtiva ? "OPERACIONAL" : "INATIVO")}");
+            Console.WriteLine($"Baterias: {(nivelBateria > 20 ? "OK" : "BAIXO")}");
+            Console.WriteLine($"Vazamentos: NENHUM DETECTADO");
+            Console.WriteLine($"Sistemas de Emergência: {(emergencia ? "ATIVADOS" : "PRONTOS")}");
+            
+            Console.WriteLine("\nPressione qualquer tecla para voltar...");
+            Console.ReadKey();
+        }
+        
+        private void AtivarModoEmergencia()
+        {
+            Console.Clear();
+            Console.WriteLine("=== ATIVAÇÃO DE MODO DE EMERGÊNCIA ===");
+            Console.WriteLine("\nATENÇÃO: Esta ação irá:");
+            Console.WriteLine("- Desligar todos os sistemas não essenciais");
+            Console.WriteLine("- Emergir imediatamente");
+            Console.WriteLine("- Ativar protocolos de segurança");
+            
+            Console.Write("\nConfirmar ativação? (S/N): ");
+            var confirmacao = Console.ReadLine().ToUpper();
+            
+            if (confirmacao == "S")
+            {
+                emergencia = true;
+                propulsaoAtiva = true;
+                sonarAtivo = false;
+                luzesExternas = false;
+                velocidade = velocidadeMaxima;
+                
+                // Emergir
+                Console.WriteLine("\nAtivando modo de emergência...");
+                Console.WriteLine("Emergindo rapidamente!");
+                
+                while (profundidade > 0)
+                {
+                    profundidade -= 10;
+                    if (profundidade < 0) profundidade = 0;
+                    pressaoInterna = 1 + (profundidade / 100 * 0.9);
+                    Console.WriteLine($"Profundidade: {profundidade}m");
+                    Thread.Sleep(200);
+                }
+                
+                submerso = false;
+                Console.WriteLine("\nEmergência concluída. Submarino na superfície.");
+                Console.WriteLine("Todos os sistemas não essenciais foram desativados.");
+                Thread.Sleep(3000);
+            }
+            else
+            {
+                Console.WriteLine("Ativação cancelada.");
+                Thread.Sleep(1000);
+            }
+        }
+        
+        private void DesligarSistema()
+        {
+            Console.Clear();
+            Console.WriteLine("=== DESLIGAMENTO DO SISTEMA ===");
+            Console.Write("\nConfirmar desligamento? (S/N): ");
+            var confirmacao = Console.ReadLine().ToUpper();
+            
+            if (confirmacao == "S")
+            {
+                Console.WriteLine("\nDesligando sistemas...");
+                
+                propulsaoAtiva = false;
+                sonarAtivo = false;
+                sistemaO2Ativo = false;
+                
+                for (int i = 5; i > 0; i--)
+                {
+                    Console.WriteLine($"{i}...");
+                    Thread.Sleep(1000);
+                }
+                
+                sistemaAtivo = false;
+                Console.WriteLine("Sistema desligado com segurança.");
+            }
+            else
+            {
+                Console.WriteLine("Operação cancelada.");
+                Thread.Sleep(1000);
+            }
+        }
+        
+        private void AtualizarEstado()
+        {
+            // Simular consumo de recursos
+            if (sistemaAtivo)
+            {
+                Random rnd = new Random();
+                
+                // Consumo de oxigênio
+                if (sistemaO2Ativo)
+                {
+                    nivelOxigenio -= 0.1;
+                    if (nivelOxigenio < 0) nivelOxigenio = 0;
+                }
+                else
+                {
+                    nivelOxigenio -= 0.5;
+                    if (nivelOxigenio < 0) nivelOxigenio = 0;
+                }
+                
+                // Consumo de bateria
+                nivelBateria -= 0.05;
+                if (nivelBateria < 0) nivelBateria = 0;
+                
+                // Variação de temperatura
+                temperaturaExterna = 20 - (profundidade / 50) + rnd.NextDouble();
+                
+                // Verificar condições críticas
+                if (nivelOxigenio < 20)
+                {
+                    Console.WriteLine("\nALERTA: Nível de oxigênio crítico!");
+                    Thread.Sleep(2000);
+                }
+                
+                if (nivelBateria < 15)
+                {
+                    Console.WriteLine("\nALERTA: Nível de bateria crítico!");
+                    Thread.Sleep(2000);
+                }
+                
+                if (profundidade > profundidadeMaxima * 0.9)
+                {
+                    Console.WriteLine("\nALERTA: Profundidade crítica!");
+                    Thread.Sleep(2000);
+                }
+            }
+        }
+    }
+}
