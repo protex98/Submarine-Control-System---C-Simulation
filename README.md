@@ -17,7 +17,8 @@ A complete submarine control system simulator built in **C#** with a text-based 
 - **Simulation Logic** (physics, resource management)
 
 ## 📸 Screenshots
-*(Adicione imagens do sistema em funcionamento, se possível)*
+![projeto](https://github.com/user-attachments/assets/c780c194-4295-488f-8f15-ae8c26430204)
+
 
 ## 🚀 How to Run
 1. Clone the repository:
